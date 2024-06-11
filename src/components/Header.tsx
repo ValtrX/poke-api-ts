@@ -17,7 +17,7 @@ export default function Header() {
       setQuery(event.target.value);
 };
 
-const debouncedValue = useDebounce(query, 200);
+const debouncedValue = useDebounce(query, 400);
 
   useEffect(() => {
 

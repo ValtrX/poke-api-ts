@@ -6,7 +6,7 @@ import { getAllPokemons } from '../sdk/pokeApi';
 import { Pokemon } from '../types/pokemon';
 
 export const SearchPage = () => {
-  const { dispatch, pokemonList } = usePoke();
+  const { dispatch, completeList } = usePoke();
   const [searchParams] = useSearchParams();
   const [filteredPokemons, setFilteredPokemons] = useState<Pokemon[]>([]);
   const [loading, setLoading] = useState(false);
@@ -15,7 +15,7 @@ export const SearchPage = () => {
     setLoading(true);
     try {
       const allPokemons = await getAllPokemons(0, 100000);
-      dispatch({ type: 'SET_POKEMON', args: allPokemons });
+      dispatch({ type: 'SET_COMPLETE_POKEMON', args: allPokemons.results });
       setLoading(false);
     } catch (error) {
       console.error(error);
@@ -24,23 +24,22 @@ export const SearchPage = () => {
   };
 
   useEffect(() => {
-    fetchAllPokemons();
-  }, []);
+    if (completeList.length === 0) {
+      fetchAllPokemons();
+    }
+  }, [completeList]);
 
-  
   useEffect(() => {
-    
-    const typeFilter = searchParams.get("name");
-    
-    if (pokemonList.length > 0 && typeFilter) {
-      
-			const filteredPokemons = pokemonList.filter(pokemon =>
-        pokemon.name.includes(typeFilter ?? "")
+    const nameFilter = searchParams.get("name");
+    if (completeList.length > 0 && nameFilter) {
+      const filteredPokemons = completeList.filter(pokemon =>
+        pokemon.name.toLowerCase().includes(nameFilter.toLowerCase())
       );
       setFilteredPokemons(filteredPokemons);
+    } else {
+      setFilteredPokemons([]);
     }
-    
-  }, [searchParams]);
+  }, [searchParams, completeList]);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -49,8 +48,7 @@ export const SearchPage = () => {
   return (
     <div className='container'>
       <p className='p-search'>
-        Se encontraron <span>{filteredPokemons.length}</span>{' '}
-        resultados:
+        Se encontraron <span>{filteredPokemons.length}</span> resultados:
       </p>
       <div className='card-list-pokemon container'>
         {filteredPokemons.map(pokemon => (
