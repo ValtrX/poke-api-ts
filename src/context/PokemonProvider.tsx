@@ -1,6 +1,8 @@
-import { createContext, useContext, useReducer } from 'react';
+import { createContext, useContext, useEffect, useReducer, useState } from 'react';
 import { PokemonArray, Pokemon } from '../types/pokemon';
 import { Actions } from '../types/reducer';
+import { getAllPokemons } from '../sdk/pokeApi';
+import LoadingBar from '../components/LoadingBar';
 
 interface Props {
   children: React.ReactNode;
@@ -32,7 +34,7 @@ const reducer = (state: AppState, action: Actions): AppState => {
         pokemonCount: count,
       };
     }
-    case 'SET_COMPLETE_POKEMON': {
+    case 'SET_COMPLETE_POKEMON_BY_NAME': {
       return {
         ...state,
         completeList: action.args,
@@ -55,6 +57,27 @@ export const usePokeReducer = () => useReducer(reducer, defaultState);
 
 const ProviderPoke = ({ children }: Props) => {
   const [state, dispatch] = usePokeReducer();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAllPokemons = async () => {
+      try {
+        const allPokemons = await getAllPokemons(0, 100000);
+        dispatch({ type: 'SET_COMPLETE_POKEMON_BY_NAME', args: allPokemons.results });
+          setLoading(false);
+        
+      } catch (error) {
+        console.error('Error fetching all Pokémon:', error);
+        setLoading(false); // Set loading to false even on error
+      }
+    };
+
+    fetchAllPokemons();
+  }, []);
+
+  if (loading) {
+    return <LoadingBar />;
+  }
 
   return (
     <PokeContext.Provider value={{ ...state, dispatch }}>

@@ -1,11 +1,11 @@
 export type PokemonArray = Pokemon[]
 
-export interface allPokemonData {
+export interface AllPokemonData {
   count: number
-  results: singlePokemonData[]
+  results: SinglePokemonData[]
 }
 
-export interface singlePokemonData {
+export interface SinglePokemonData {
   name: string
   url: string
 }

@@ -12,9 +12,9 @@ const App = (): JSX.Element => {
         <Routes>
           <Route path="/" element={<Layout />}>
             <Route index element={<Home />} />
-            <Route path="berries" element={<Berries />} />
-            <Route path="pokemon/:name" element={<PokemonDetail />} />
-            <Route path="search" element={<SearchPage />} />
+            {/* <Route path="berries" element={<Berries />} /> */}
+            {/* <Route path="pokemon/:name" element={<PokemonDetail />} /> */}
+            {/* <Route path="search" element={<SearchPage />} /> */}
           </Route>
 
           <Route path="*" element={<Navigate to="/" />} />
