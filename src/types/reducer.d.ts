@@ -15,9 +15,19 @@ export interface SET_PAGINATED_POKEMON {
   args: { paginatedList: PokemonArray; pokemonCount: number };
 }
 
-export interface SET_COMPLETE_POKEMON {
-  type: 'SET_COMPLETE_POKEMON';
-  args: AllPokemonData;
+export interface SET_POKEMON_BY_NAMES {
+  type: 'SET_POKEMON_BY_NAMES';
+  args: SinglePokemonData[];
+}
+export interface SET_PAGES {
+  type: 'SET_PAGES';
+  args: number;
 }
 
-export type Actions = SET_POKEMON | SET_POKEMON_DETAILS | SET_PAGINATED_POKEMON | SET_COMPLETE_POKEMON_BY_NAME;
+
+export interface SET_SEARCH {
+  type: 'SET_SEARCH';
+  args: string | null;
+}
+
+export type Actions = SET_POKEMON_BY_NAMES | SET_PAGES | SET_SEARCH;

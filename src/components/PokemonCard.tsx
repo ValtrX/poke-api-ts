@@ -1,24 +1,44 @@
 import { Link } from 'react-router-dom';
-import { Pokemon } from '../types/pokemon';
+import { Pokemon, SinglePokemonData } from '../types/pokemon';
+import { useEffect, useState } from 'react';
+import { getPokemonByName } from '../sdk/pokeApi';
 
 interface Props {
-  pokemon: Pokemon;
+  pokemon: SinglePokemonData;
 }
 
-export const PokemonCard: React.FC<Props> = ({ pokemon }) => {
+export const PokemonCard: React.FC<Props> = ({ pokemon: pokemonData }) => {
+  const [loading, setLoading] = useState(true);
+  const [pokemon, setPokemon] = useState<Pokemon | null>(null);
+
+  useEffect(() => {
+    getPokemonByName(pokemonData.name).then((data) => {
+
+      setPokemon(data);
+    }).finally(() => {
+      setLoading(false);
+    });
+
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+
   return (
-    <Link to={`/pokemon/${pokemon.name}`}>
+    <Link to={`/pokemon/${pokemon?.name}`}>
       <div className="card-img">
         <img
-          src={pokemon.sprites.front_default}
-          alt={`Pokemon ${pokemon.name}`}
+          src={pokemon?.sprites?.front_default}
+          alt={`Pokemon ${pokemon?.name}`}
         />
       </div>
       <div className="card-info">
-        <span className="pokemon-id">N° {pokemon.id}</span>
-        <h3>{pokemon.name}</h3>
+        <span className="pokemon-id">N° {pokemon?.id}</span>
+        <h3>{pokemon?.name}</h3>
         <div className="card-types">
-          {pokemon.types.map((type) => (
+          {pokemon?.types?.map((type) => (
             <span key={type.type.name} className={type.type.name}>
               {type.type.name}
             </span>
