@@ -13,6 +13,7 @@ interface AppState {
   limit: number;
   currentPage: number;
   totalPages: number;
+  pagination: (string|number)[];
   dispatch: React.Dispatch<Actions>;
   prevPages: number;
   nextPages: number;
@@ -29,16 +30,38 @@ const defaultState: AppState = {
   nextPages: 0,
   currentPage: 0,
   totalPages: 0,
+  pagination: [],
   limit: 5,
   search: null,
   dispatch: (_value: Actions) => { },
 };
+
+const renderPagination = ( currentPage = 0, totalPages = 0 ) => {
+  const pages = [];
+  const delta = 2; // Número de páginas a mostrar a cada lado del número actual
+
+  for (let i = 0; i < totalPages; i++) {
+    // Si la página está dentro del rango visible o es la primera/última página
+    if (
+      i === 0 ||
+      i === totalPages - 1 ||
+      (i >= currentPage - delta && i <= currentPage + delta)
+    ) {
+      pages.push(i + 1); // Convertir 0-basado a 1-basado para mostrar
+    } else if (pages[pages.length - 1] !== '...') {
+      pages.push('...');
+    }
+  }
+
+  return pages;
+}
 
 const reducer = (state: AppState, action: Actions): AppState => {
   switch (action.type) {
     case 'SET_POKEMON_BY_NAMES': {
       const data = action.args;
       const pokemonNames = data.slice(0, state.limit);
+      const totalPages = Math.ceil(data.length / state.limit);
 
       return {
         ...state,
@@ -48,7 +71,8 @@ const reducer = (state: AppState, action: Actions): AppState => {
         currentPage: 0,
         prevPages: 0,
         nextPages: pokemonNames.length > 0 ? Math.ceil(pokemonNames.length / state.limit) : 0,
-        totalPages: Math.ceil(data.length / state.limit),
+        totalPages: totalPages,
+        pagination: renderPagination(0, totalPages)
       };
     }
 
@@ -64,11 +88,13 @@ const reducer = (state: AppState, action: Actions): AppState => {
         pokemonNamesCount: data.slice(action.args * state.limit, (action.args + 1) * state.limit).length,
         prevPages: (action.args - 1) < 0 ? 0 : (action.args - 1),
         nextPages: (action.args + 1) > state.totalPages ? state.totalPages : (action.args + 1),
+        pagination: renderPagination(action.args, state.totalPages),
       };
     }
 
     case 'SET_SEARCH': {
       if (state.search?.length === 0) {
+        const totalPages = Math.ceil(state.defaultData.length / state.limit)
         return {
           ...state,
           pokemonNames: state.defaultData,
@@ -76,19 +102,23 @@ const reducer = (state: AppState, action: Actions): AppState => {
           currentPage: 0,
           prevPages: 0,
           nextPages: state.defaultData.length > 0 ? Math.ceil(state.defaultData.length / state.limit) : 0,
-          totalPages: Math.ceil(state.defaultData.length / state.limit),
+          totalPages: totalPages,
+          pagination: renderPagination(state.defaultData.length, totalPages),
         };
       }
 
       const data = state.defaultData.filter(pokemon => pokemon.name.toLowerCase().includes(action?.args?.toLowerCase() || ''));
+      const totalPages = Math.ceil(data.length / state.limit);
       return {
         ...state,
         pokemonNames: data,
         pokemonNamesCount: data.length,
         currentPage: 0,
         prevPages: 0,
-        nextPages: data.length > 0 ? Math.ceil(data.length / state.limit) : 0,
-        totalPages: data.length > 0 ? Math.ceil(data.length / state.limit) : 0,
+        nextPages: data.length > 0 ? totalPages : 0,
+        totalPages: data.length > 0 ? totalPages : 0,
+        pagination: data.length > 0 ? renderPagination(data.length, totalPages) : [],
+        
       };
     }
 

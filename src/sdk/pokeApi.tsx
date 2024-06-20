@@ -20,7 +20,6 @@ export const getAllPokemons = async (page = 0, limit = 20): Promise<AllPokemonDa
 };
 
 
-
 export const getPokemonByName = async (name: string | undefined): Promise<Pokemon> => {
   const res = await fetch(`${baseURL}pokemon/${name}`);
   const data = await res.json();
